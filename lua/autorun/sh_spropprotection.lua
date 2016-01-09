@@ -1,12 +1,12 @@
 ------------------------------------
 --	Simple Prop Protection
---	By Spacetech, ported by Donkie with authorization for gmod 13.
--- 	http://code.google.com/p/simplepropprotection
+--	By Spacetech, Maintained by Donkie
+-- 	https://github.com/Donkie/SimplePropProtection
 ------------------------------------
 
-AddCSLuaFile("autorun/sh_SPropProtection.lua")
-AddCSLuaFile("SPropProtection/cl_Init.lua")
-AddCSLuaFile("SPropProtection/sh_CPPI.lua")
+AddCSLuaFile("autorun/sh_spropprotection.lua")
+AddCSLuaFile("spropprotection/cl_init.lua")
+AddCSLuaFile("spropprotection/sh_cppi.lua")
 
 SPropProtection = {}
 SPropProtection.Version = 1.6 -- "SVN"
@@ -15,14 +15,14 @@ CPPI = {}
 CPPI_NOTIMPLEMENTED = 26
 CPPI_DEFER = 16
 
-include("SPropProtection/sh_CPPI.lua")
+include("spropprotection/sh_cppi.lua")
 
-if(SERVER) then
-	include("SPropProtection/sv_Init.lua")
+if SERVER then
+	include("spropprotection/sv_init.lua")
 else
-	include("SPropProtection/cl_Init.lua")
+	include("spropprotection/cl_init.lua")
 end
 
 Msg("==========================================================\n")
-Msg("Simple Prop Protection Version "..SPropProtection.Version.." by Spacetech has loaded\n")
+Msg("Simple Prop Protection Version " .. SPropProtection.Version .. " by Spacetech has loaded\n")
 Msg("==========================================================\n")
