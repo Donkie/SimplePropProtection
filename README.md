@@ -1,0 +1,2 @@
+# SimplePropProtection
+SimplePropProtection for Garrysmod
