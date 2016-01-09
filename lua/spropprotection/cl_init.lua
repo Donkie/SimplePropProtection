@@ -64,7 +64,7 @@ function SPropProtection.AdminPanel(Panel)
 
 	Panel:AddControl("CheckBox", {Label = "Prop Protection", Command = "spp_check"})
 	Panel:AddControl("CheckBox", {Label = "Admins Can Do Everything", Command = "spp_admin"})
-	Panel:AddControl("CheckBox", {Label = "Use Protection", Command = "spp_use"})
+	Panel:AddControl("CheckBox", {Label = "+Use Protection", Command = "spp_use"})
 	Panel:AddControl("CheckBox", {Label = "Entity Damage Protection", Command = "spp_edmg"})
 	Panel:AddControl("CheckBox", {Label = "Physgun Reload Protection", Command = "spp_pgr"})
 	Panel:AddControl("CheckBox", {Label = "Admins Can Touch World Prop", Command = "spp_awp"})
