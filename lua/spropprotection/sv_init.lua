@@ -93,12 +93,6 @@ function SPropProtection.UnOwnProp(ent)
 end
 
 function SPropProtection.PlayerMakePropOwner(ply, ent)
-	if ent:GetClass() == "transformer" and ent.spawned and not ent.Part then
-		for k,v in pairs(transpiece[ent]) do
-			v.Part = true
-			SPropProtection.PlayerMakePropOwner(ply, v)
-		end
-	end
 	if ent:IsPlayer() then
 		return false
 	end
@@ -191,34 +185,6 @@ function SPropProtection.PlayerCanTouch(ply, ent)
 		if SPropProtection.Props[ent:EntIndex()].SteamID == ply:SteamID() or SPropProtection.IsFriend(ply, ent) then
 			return true
 		end
-	else
-		/*for k,v in pairs(g_SBoxObjects) do
-			for _, j in pairs(v) do
-				for _, e in pairs(j) do
-					if k == ply:SteamID() and e == ent then
-						SPropProtection.PlayerMakePropOwner(ply, ent)
-						SPropProtection.Notify(ply, "You now own this prop")
-						return true
-					end
-				end
-			end
-		end
-		*/
-		/*for k,v in pairs(GAMEMODE.CameraList) do
-			for _, j in pairs(v) do
-				if j == ent then
-					if k == ply:SteamID() and e == ent then
-						SPropProtection.PlayerMakePropOwner(ply, ent)
-						SPropProtection.Notify(ply, "You now own this prop")
-						return true
-					end
-				end
-			end
-		end Doesn't seem to exist
-		*/
-	end
-	if game.GetMap() == "gm_construct" and ent:GetNWString("Owner") == "World" then
-		return true
 	end
 	return false
 end
