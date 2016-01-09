@@ -78,6 +78,18 @@ function SPropProtection.LoadFriends(ply)
 			end
 		end
 	end
+
+	SPropProtection.NotifyFriendChange(ply)
+end
+
+function SPropProtection.UnOwnProp(ent)
+	if not IsValid(ent) then return false end
+
+	SPropProtection.Props[ent:EntIndex()] = nil
+	ent:SetNWString("Owner", nil)
+	ent:SetNWEntity("OwnerObj", nil)
+
+	return true
 end
 
 function SPropProtection.PlayerMakePropOwner(ply, ent)
@@ -90,6 +102,10 @@ function SPropProtection.PlayerMakePropOwner(ply, ent)
 	if ent:IsPlayer() then
 		return false
 	end
+
+	local ret = hook.Run("CPPIAssignOwnership", ply, ent, ply:UniqueID())
+	if ret == false then return end
+
 	SPropProtection.Props[ent:EntIndex()] = {
 		Ent = ent,
 		Owner = ply,
@@ -97,7 +113,7 @@ function SPropProtection.PlayerMakePropOwner(ply, ent)
 	}
 	ent:SetNWString("Owner", ply:Nick())
 	ent:SetNWEntity("OwnerObj", ply)
-	gamemode.Call("CPPIAssignOwnership", ply, ent)
+
 	return true
 end
 
@@ -135,6 +151,7 @@ end
 
 function SPropProtection.IsFriend(ply, ent)
 	local plys = player.GetAll()
+
 	if #plys == 1 then
 		return true
 	end
@@ -152,7 +169,7 @@ function SPropProtection.IsFriend(ply, ent)
 end
 
 function SPropProtection.PlayerCanTouch(ply, ent)
-	if tonumber(SPropProtection.Config["toggle"]) == 0 or ent:GetClass() == "worldspawn" or ent.SPPOwnerless then
+	if tonumber(SPropProtection.Config["toggle"]) == 0 or ent:GetClass() == "worldspawn" then
 		return true
 	end
 
@@ -454,6 +471,19 @@ function SPropProtection.CleanupProps(ply, cmd, args)
 end
 concommand.Add("spp_cleanupprops", SPropProtection.CleanupProps)
 
+function SPropProtection.NotifyFriendChange(ply)
+	local Table = {}
+	for k,v in pairs(SPropProtection[ply:SteamID()]) do
+		for k2,v2 in pairs(player.GetAll()) do
+			if v == v2:SteamID() then
+				table.insert(Table, v2)
+				break
+			end
+		end
+	end
+	hook.Run("CPPIFriendsChanged", ply, Table)
+end
+
 function SPropProtection.ApplyFriends(ply, cmd, args)
 	if not IsValid(ply) then
 		MsgN("This command can only be run in-game!")
@@ -489,15 +519,7 @@ function SPropProtection.ApplyFriends(ply, cmd, args)
 			end
 		end
 		if ChangedFriends then
-			local Table = {}
-			for k,v in pairs(SPropProtection[ply:SteamID()]) do
-				for k2,v2 in pairs(player.GetAll()) do
-					if v == v2:SteamID() then
-						table.insert(Table, v2)
-					end
-				end
-			end
-			gamemode.Call("CPPIFriendsChanged", ply, Table)
+			SPropProtection.NotifyFriendChange(ply)
 		end
 	end
 	SPropProtection.Notify(ply, "Your friends have been updated")

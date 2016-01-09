@@ -13,7 +13,7 @@ function CPPI:GetVersion()
 end
 
 function CPPI:GetInterfaceVersion()
-	return 1.1
+	return 1.3
 end
 
 function CPPI:GetNameFromUID(uid)
@@ -47,10 +47,6 @@ if not entmeta then
 end
 
 function entmeta:CPPIGetOwner()
-	if self.SPPOwnerless then
-		return true, CPPI_NOTIMPLEMENTED
-	end
-
 	local ply = self:GetNWEntity("OwnerObj", false)
 
 	if SERVER then
@@ -74,29 +70,23 @@ end
 
 if SERVER then
 	function entmeta:CPPISetOwner(ply)
+		if not ply then
+			return SPropProtection.UnOwnProp(self)
+		end
+
 		if not IsValid(ply) or not ply:IsPlayer() then
 			return false
 		end
 		return SPropProtection.PlayerMakePropOwner(ply, self)
 	end
 
-	function entmeta:CPPISetOwnerless(Bool)
-		self.SPPOwnerless = Bool
-		if Bool then
-			self:SetNWString("Owner", "Ownerless")
-			self:SetNWEntity("OwnerObj", GetWorldEntity())
-		else
-			self:SetNWString("Owner", "N/A")
-		end
-	end
-
 	function entmeta:CPPISetOwnerUID(uid)
 		if not uid then
-			return false
+			return SPropProtection.UnOwnProp(self)
 		end
 
 		local ply = player.GetByUniqueID(tostring(uid))
-		if not ply then
+		if not IsValid(ply) then
 			return false
 		end
 
@@ -104,14 +94,29 @@ if SERVER then
 	end
 
 	function entmeta:CPPICanTool(ply, toolmode)
-		if not IsValid(ply) or not ply:IsPlayer() or not toolmode then
+		if not IsValid(ply) or not toolmode then
 			return false
 		end
-		return SPropProtection.PlayerCanTouch(ply, self)
+
+		local entidx = self:EntIndex()
+
+		if not SPropProtection.KVcanuse[entidx] then SPropProtection.KVcanuse[entidx] = -1 end
+
+		if not SPropProtection.PlayerCanTouch(ply, self) or SPropProtection.KVcantool[entidx] == 0 or (SPropProtection.KVcantool[entidx] == 1 and not ply:IsAdmin()) then
+			return false
+		elseif toolmode == "remover" then
+			if ply:KeyDown(IN_ATTACK2) or ply:KeyDownLast(IN_ATTACK2) then
+				if not SPropProtection.CheckConstraints(ply, self) then
+					return false
+				end
+			end
+		end
+
+		return true
 	end
 
 	function entmeta:CPPICanPhysgun(ply)
-		if not IsValid(ply) or not ply:IsPlayer() then
+		if not IsValid(ply) then
 			return false
 		end
 		if SPropProtection.PhysGravGunPickup(ply, self) == false then
@@ -119,24 +124,64 @@ if SERVER then
 		end
 		return true
 	end
+	entmeta.CPPICanPickup = entmeta.CPPICanPhysgun
+	entmeta.CPPICanPunt = entmeta.CPPICanPhysgun
 
-	function entmeta:CPPICanPickup(ply)
-		if not IsValid(ply) or not ply:IsPlayer() then
+	function entmeta:CPPICanUse(ply)
+		if not IsValid(ply) then
 			return false
 		end
-		if SPropProtection.PhysGravGunPickup(ply, self) == false then
+		if SPropProtection.PlayerUse(ply, self) == false then
 			return false
 		end
 		return true
 	end
 
-	function entmeta:CPPICanPunt(ply)
-		if not IsValid(ply) or not ply:IsPlayer() then
+	function entmeta:CPPICanDamage(ply)
+		if not IsValid(ply) then
 			return false
 		end
-		if SPropProtection.PhysGravGunPickup(ply, self) == false then
+
+		if tonumber(SPropProtection.Config["edmg"]) == 0 then
+			return true
+		end
+
+		return SPropProtection.PlayerCanTouch(ply, self)
+	end
+
+	function entmeta:CPPIDrive(ply)
+		if not IsValid(ply) then
 			return false
 		end
+
+		if SPropProtection.CanDrive(ply, self) == false then
+			return false
+		end
+
+		return true
+	end
+
+	function entmeta:CPPICanProperty(ply, prop)
+		if not IsValid(ply) then
+			return false
+		end
+
+		if SPropProtection.CanProperty(ply, prop, self) == false then
+			return false
+		end
+
+		return true
+	end
+
+	function entmeta:CPPICanEditVariable(ply, key, val, edit)
+		if not IsValid(ply) then
+			return false
+		end
+
+		if SPropProtection.CanEditVariable(self, ply, key, val, edit) == false then
+			return false
+		end
+
 		return true
 	end
 end

@@ -9,7 +9,7 @@ AddCSLuaFile("spropprotection/cl_init.lua")
 AddCSLuaFile("spropprotection/sh_cppi.lua")
 
 SPropProtection = {}
-SPropProtection.Version = 1.6 -- "SVN"
+SPropProtection.Version = 1.7
 
 CPPI = {}
 CPPI_NOTIMPLEMENTED = 26
