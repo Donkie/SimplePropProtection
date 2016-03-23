@@ -116,10 +116,11 @@ function SPropProtection.ClientPanel(Panel)
 end
 
 function SPropProtection.SpawnMenuOpen()
-	if SPropProtection.AdminCPanel then
+	if IsValid(SPropProtection.AdminCPanel) then
 		SPropProtection.AdminPanel(SPropProtection.AdminCPanel)
 	end
-	if SPropProtection.ClientCPanel then
+	
+	if IsValid(SPropProtection.ClientCPanel) then
 		SPropProtection.ClientPanel(SPropProtection.ClientCPanel)
 	end
 end
