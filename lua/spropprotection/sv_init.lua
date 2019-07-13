@@ -5,14 +5,6 @@
 ------------------------------------
 
 SPropProtection.Props = {}
-SPropProtection.WeirdTraces = {
-	"wire_winch",
-	"wire_hydraulic",
-	"slider",
-	"hydraulic",
-	"winch",
-	"muscle"
-}
 
 function SPropProtection.SetupSettings()
 	if not sql.TableExists("spropprotection") then
@@ -265,24 +257,6 @@ function SPropProtection.CanTool(ply, tr, mode)
 	elseif mode == "remover" then
 		if ply:KeyDown(IN_ATTACK2) or ply:KeyDownLast(IN_ATTACK2) then
 			if not SPropProtection.CheckConstraints(ply, ent) then
-				return false
-			end
-		end
-	elseif mode == "nail" or table.HasValue(SPropProtection.WeirdTraces, mode) then
-		local Trace = {}
-		Trace.start = tr.HitPos
-		if mode == "nail" then
-			Trace.endpos = tr.HitPos + (ply:GetAimVector() * 16.0)
-			Trace.filter = {ply, tr.Entity}
-		else
-			Trace.endpos = Trace.start + (tr.HitNormal * 16384)
-			Trace.filter = {ply}
-		end
-
-		local tr2 = util.TraceLine(Trace)
-		if not SPropProtection.KVcanuse[tr2.Entity:EntIndex()] then SPropProtection.KVcanuse[tr2.Entity:EntIndex()] = -1 end
-		if tr2.Hit and IsValid(tr2.Entity) and not tr2.Entity:IsPlayer() then
-			if not SPropProtection.PlayerCanTouch(ply, tr2.Entity) or SPropProtection.KVcantool[tr2.Entity:EntIndex()] == 0 or (SPropProtection.KVcantool[tr2.Entity:EntIndex()] == 1 and not ply:IsAdmin()) then
 				return false
 			end
 		end
